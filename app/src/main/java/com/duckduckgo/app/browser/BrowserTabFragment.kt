@@ -1896,6 +1896,10 @@ class BrowserTabFragment :
                     pixel.fire(AppPixelName.MENU_ACTION_REPORT_BROKEN_SITE_PRESSED)
                     viewModel.onBrokenSiteSelected()
                 }
+                onMenuItemClicked(view.downloadsPopupMenuItem) {
+                    pixel.fire(AppPixelName.MENU_ACTION_DOWNLOADS_PRESSED)
+                    browserActivity?.launchDownloads()
+                }
                 onMenuItemClicked(view.settingsPopupMenuItem) {
                     pixel.fire(AppPixelName.MENU_ACTION_SETTINGS_PRESSED)
                     browserActivity?.launchSettings()

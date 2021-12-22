@@ -105,4 +105,8 @@
     <!-- Privacy Policy -->
     <string name="settingsPrivacyPolicyDuckduckgo">Privacy Policy</string>
 
+    <!-- Downloads -->
+    <string name="downloadsMenuItem">Downloads</string>
+    <string name="downloadsActivityTitle">Downloads</string>
+
 </resources>
