@@ -14,21 +14,13 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/downloads_header_text_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.duckduckgo.app.downloads.DownloadsActivity">
-
-    <include
-        android:id="@+id/includeToolbar"
-        layout="@layout/include_toolbar" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/downloads_content_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/includeToolbar" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:paddingStart="24dp"
+    android:paddingTop="48dp"
+    android:paddingEnd="24dp"
+    tools:text="TODAY" />

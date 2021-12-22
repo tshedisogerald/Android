@@ -19,14 +19,20 @@ package com.duckduckgo.app.downloads
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.duckduckgo.app.browser.databinding.ActivityDownloadsBinding
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.mobile.android.ui.viewbinding.viewBinding
+import kotlinx.coroutines.launch
 
 class DownloadsActivity : DuckDuckGoActivity() {
 
     private val viewModel: DownloadsViewModel by bindViewModel()
     private val binding: ActivityDownloadsBinding by viewBinding()
+    private val downloadsAdapter = DownloadsAdapter()
 
     private val toolbar
         get() = binding.includeToolbar.toolbar
@@ -35,6 +41,26 @@ class DownloadsActivity : DuckDuckGoActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupToolbar(toolbar)
+        setupRecyclerView()
+
+        lifecycleScope.launch {
+            viewModel.downloads().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+                render(it)
+            }
+        }
+    }
+
+    private fun render(viewState: DownloadsViewModel.ViewState) {
+        if (viewState.downloadItems.isEmpty()) {
+            downloadsAdapter.updateData(listOf(DownloadViewItem.Empty))
+        } else {
+            downloadsAdapter.updateData(viewState.downloadItems)
+        }
+    }
+
+    private fun setupRecyclerView() {
+        binding.downloadsContentView.layoutManager = LinearLayoutManager(this)
+        binding.downloadsContentView.adapter = downloadsAdapter
     }
 
     companion object {

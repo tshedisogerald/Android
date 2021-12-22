@@ -108,5 +108,6 @@
     <!-- Downloads -->
     <string name="downloadsMenuItem">Downloads</string>
     <string name="downloadsActivityTitle">Downloads</string>
+    <string name="downloadsActivityNoItemsDescription">No files downloaded yet</string>
 
 </resources>
