@@ -23,12 +23,15 @@
 
     <include
         android:id="@+id/includeToolbar"
-        layout="@layout/include_toolbar" />
+        layout="@layout/include_toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/downloads_content_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/includeToolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,17 +25,18 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.duckduckgo.app.di.AppCoroutineScope
+import com.duckduckgo.app.downloads.model.DownloadStatus.FINISHED
+import com.duckduckgo.app.downloads.model.DownloadsRepository
 import com.duckduckgo.app.global.DispatcherProvider
 import com.duckduckgo.app.pixels.AppPixelName
 import com.duckduckgo.app.statistics.pixels.Pixel
 import com.duckduckgo.di.scopes.AppScope
 import com.squareup.anvil.annotations.ContributesMultibinding
 import dagger.SingleInstanceIn
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-
 
 @ContributesMultibinding(
     scope = AppScope::class,
@@ -45,6 +46,7 @@ import javax.inject.Inject
 class FileDownloadBroadcastReceiver @Inject constructor(
     private val context: Context,
     private val pixel: Pixel,
+    private val downloadsRepository: DownloadsRepository,
     private val dispatcher: DispatcherProvider,
     @AppCoroutineScope private val appCoroutineScope: CoroutineScope
 ) : BroadcastReceiver(), DefaultLifecycleObserver {
@@ -65,6 +67,16 @@ class FileDownloadBroadcastReceiver @Inject constructor(
                     DownloadManager.STATUS_SUCCESSFUL -> {
                         Timber.d("Download completed with success.")
                         pixel.fire(AppPixelName.DOWNLOAD_REQUEST_SUCCEEDED)
+                        val downloadId = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                        if (downloadId != null && downloadId > 0) {
+                            val totalSizeIndex = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                            val size = if (totalSizeIndex > 0) cursor.getLong(totalSizeIndex) else 0
+                            downloadsRepository.update(
+                                downloadId = downloadId,
+                                downloadStatus = FINISHED,
+                                contentLength = size
+                            )
+                        }
                     }
                     DownloadManager.STATUS_FAILED -> {
                         Timber.d("Download completed, but failed.")

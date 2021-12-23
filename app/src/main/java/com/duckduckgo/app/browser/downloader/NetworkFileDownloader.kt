@@ -23,6 +23,7 @@ import android.webkit.CookieManager
 import androidx.core.net.toUri
 import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.browser.downloader.FileDownloader.PendingFileDownload
+import com.duckduckgo.app.downloads.model.DownloadItem
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -99,8 +100,14 @@ class NetworkFileDownloader @Inject constructor(
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         }
         val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
-        manager?.enqueue(request)
-        callback.downloadStartedNetworkFile()
+        val downloadId = manager?.enqueue(request)
+        callback.downloadStartedNetworkFile(DownloadItem(
+            id = 0,
+            downloadId = downloadId ?: 0,
+            fileName = guessedFileName,
+            contentLength = 0,
+            createdAt = System.currentTimeMillis()
+        ))
     }
 
     companion object {

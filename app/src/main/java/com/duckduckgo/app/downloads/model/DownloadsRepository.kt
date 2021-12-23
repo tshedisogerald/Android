@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.map
 
 interface DownloadsRepository {
     fun insert(downloadItem: DownloadItem): Long
+    fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
     fun getDownloads(): Flow<List<DownloadItem>>
 }
 
@@ -33,16 +34,32 @@ class DefaultDownloadsRepository(private val downloadsDao: DownloadsDao) : Downl
         return downloadsDao.insert(downloadItem.mapToDownloadEntity())
     }
 
+    override fun update(downloadId: Long, downloadStatus: Int, contentLength: Long) {
+        downloadsDao.update(downloadId, downloadStatus, contentLength)
+    }
+
     override fun getDownloads(): Flow<List<DownloadItem>> {
         return downloadsDao.getDownloads().distinctUntilChanged().map { it.mapToDownloadItems() }
     }
 
     private fun DownloadEntity.mapToDownloadItem(): DownloadItem =
-        DownloadItem(this.id, this.fileName, this.contentLength, this.createdAt)
+        DownloadItem(
+            id = this.id,
+            downloadId = this.downloadId,
+            fileName = this.fileName,
+            contentLength = this.contentLength,
+            createdAt = this.createdAt,
+        )
 
     private fun List<DownloadEntity>.mapToDownloadItems(): List<DownloadItem> =
         this.map { it.mapToDownloadItem() }
 
     private fun DownloadItem.mapToDownloadEntity(): DownloadEntity =
-        DownloadEntity(this.id, this.fileName, this.contentLength, this.createdAt)
+        DownloadEntity(
+            id = this.id,
+            downloadId = this.downloadId,
+            fileName = this.fileName,
+            contentLength = this.contentLength,
+            createdAt = this.createdAt,
+        )
 }

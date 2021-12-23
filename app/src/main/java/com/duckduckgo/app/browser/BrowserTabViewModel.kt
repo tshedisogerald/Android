@@ -76,6 +76,8 @@ import com.duckduckgo.app.browser.session.WebViewSessionStorage
 import com.duckduckgo.app.browser.ui.HttpAuthenticationDialogFragment.HttpAuthenticationListener
 import com.duckduckgo.app.cta.ui.*
 import com.duckduckgo.app.di.AppCoroutineScope
+import com.duckduckgo.app.downloads.model.DownloadItem
+import com.duckduckgo.app.downloads.model.DownloadsRepository
 import com.duckduckgo.app.email.EmailManager
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteEntity
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteRepository
@@ -161,7 +163,8 @@ class BrowserTabViewModel(
     private val accessibilitySettingsDataStore: AccessibilitySettingsDataStore,
     @AppCoroutineScope private val appCoroutineScope: CoroutineScope,
     private val appLinksHandler: AppLinksHandler,
-    private val variantManager: VariantManager
+    private val variantManager: VariantManager,
+    private val downloadsRepository: DownloadsRepository
 ) : WebViewClientListener, EditSavedSiteListener, HttpAuthenticationListener, SiteLocationPermissionDialog.SiteLocationPermissionDialogListener,
     SystemLocationPermissionDialog.SystemLocationPermissionDialogListener, ViewModel() {
 
@@ -2169,9 +2172,12 @@ class BrowserTabViewModel(
                 pendingFileDownload,
                 object : FileDownloader.FileDownloadListener {
 
-                    override fun downloadStartedNetworkFile() {
+                    override fun downloadStartedNetworkFile(downloadItem: DownloadItem) {
                         Timber.d("download started: network file")
-                        closeAndReturnToSourceIfBlankTab()
+                        viewModelScope.launch(dispatchers.io()) {
+                            downloadsRepository.insert(downloadItem)
+                            closeAndReturnToSourceIfBlankTab()
+                        }
                     }
 
                     override fun downloadFinishedNetworkFile(file: File, mimeType: String?) {
@@ -2282,12 +2288,13 @@ class BrowserTabViewModelFactory @Inject constructor(
     private val accessibilitySettingsDataStore: Provider<AccessibilitySettingsDataStore>,
     private val appCoroutineScope: Provider<CoroutineScope>,
     private val appLinksHandler: Provider<DuckDuckGoAppLinksHandler>,
-    private val variantManager: Provider<VariantManager>
+    private val variantManager: Provider<VariantManager>,
+    private val downloadsRepository: Provider<DownloadsRepository>
 ) : ViewModelFactoryPlugin {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T? {
         with(modelClass) {
             return when {
-                isAssignableFrom(BrowserTabViewModel::class.java) -> BrowserTabViewModel(statisticsUpdater.get(), queryUrlConverter.get(), duckDuckGoUrlDetector.get(), siteFactory.get(), tabRepository.get(), userWhitelistDao.get(), contentBlocking.get(), networkLeaderboardDao.get(), bookmarksRepository.get(), favoritesRepository.get(), fireproofWebsiteRepository.get(), locationPermissionsRepository.get(), geoLocationPermissions.get(), navigationAwareLoginDetector.get(), autoComplete.get(), appSettingsPreferencesStore.get(), longPressHandler.get(), webViewSessionStorage.get(), specialUrlDetector.get(), faviconManager.get(), addToHomeCapabilityDetector.get(), ctaViewModel.get(), searchCountDao.get(), pixel.get(), dispatchers, userEventsStore.get(), fileDownloader.get(), gpc.get(), fireproofDialogsEventHandler.get(), emailManager.get(), accessibilitySettingsDataStore.get(), appCoroutineScope.get(), appLinksHandler.get(), variantManager.get()) as T
+                isAssignableFrom(BrowserTabViewModel::class.java) -> BrowserTabViewModel(statisticsUpdater.get(), queryUrlConverter.get(), duckDuckGoUrlDetector.get(), siteFactory.get(), tabRepository.get(), userWhitelistDao.get(), contentBlocking.get(), networkLeaderboardDao.get(), bookmarksRepository.get(), favoritesRepository.get(), fireproofWebsiteRepository.get(), locationPermissionsRepository.get(), geoLocationPermissions.get(), navigationAwareLoginDetector.get(), autoComplete.get(), appSettingsPreferencesStore.get(), longPressHandler.get(), webViewSessionStorage.get(), specialUrlDetector.get(), faviconManager.get(), addToHomeCapabilityDetector.get(), ctaViewModel.get(), searchCountDao.get(), pixel.get(), dispatchers, userEventsStore.get(), fileDownloader.get(), gpc.get(), fireproofDialogsEventHandler.get(), emailManager.get(), accessibilitySettingsDataStore.get(), appCoroutineScope.get(), appLinksHandler.get(), variantManager.get(), downloadsRepository.get()) as T
                 else -> null
             }
         }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 42,
-    "identityHash": "6bbcace25333bb18f24a16b878e37d3d",
+    "identityHash": "2db8e2916bc930136c1ce7392e443521",
     "entities": [
       {
         "tableName": "tds_tracker",
@@ -971,11 +971,23 @@
       },
       {
         "tableName": "downloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fileName` TEXT NOT NULL, `contentLength` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `downloadId` INTEGER NOT NULL, `downloadStatus` INTEGER NOT NULL, `fileName` TEXT NOT NULL, `contentLength` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadId",
+            "columnName": "downloadId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadStatus",
+            "columnName": "downloadStatus",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1011,7 +1023,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6bbcace25333bb18f24a16b878e37d3d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2db8e2916bc930136c1ce7392e443521')"
     ]
   }
 }

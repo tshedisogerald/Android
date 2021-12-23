@@ -16,10 +16,7 @@
 
 package com.duckduckgo.app.downloads.model
 
-data class DownloadItem(
-    val id: Long,
-    val downloadId: Long,
-    val fileName: String,
-    val contentLength: Long,
-    val createdAt: Long,
-)
+object DownloadStatus {
+    const val STARTED = 0
+    const val FINISHED = 1
+}

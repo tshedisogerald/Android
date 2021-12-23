@@ -18,11 +18,14 @@ package com.duckduckgo.app.downloads.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.duckduckgo.app.downloads.model.DownloadStatus.STARTED
 
 @Entity(tableName = "downloads")
 data class DownloadEntity(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
+    var downloadId: Long,
+    var downloadStatus: Int = STARTED,
     var fileName: String,
-    var contentLength: Long,
+    var contentLength: Long = 0,
     var createdAt: Long = System.currentTimeMillis(),
 )
