@@ -64,7 +64,7 @@ class FilenameExtractor @Inject constructor(
 
     private fun guessFilename(url: String, contentDisposition: String?, mimeType: String?): String {
         val tidiedUrl = url.removeSuffix("/")
-        var guessedFilename = URLUtil.guessFileName(tidiedUrl, contentDisposition, mimeType)
+        var guessedFilename = DownloaderUtil.guessFileName(tidiedUrl, contentDisposition, mimeType)
 
         // we only want to keep the default .bin filetype on the guess if the URL actually has that too
         if (guessedFilename.endsWith(DEFAULT_FILE_TYPE) && !tidiedUrl.endsWith(DEFAULT_FILE_TYPE)) {

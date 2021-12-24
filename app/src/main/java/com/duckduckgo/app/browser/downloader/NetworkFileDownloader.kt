@@ -45,9 +45,10 @@ class NetworkFileDownloader @Inject constructor(
 
         fileService.getFileDetails(pendingDownload.url)?.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    var updatedPendingDownload = pendingDownload.copy()
+                var updatedPendingDownload = pendingDownload.copy()
 
+                if (response.isSuccessful) {
+                    Timber.d("HEAD request successful for ${pendingDownload.url}")
                     val contentType = response.headers().get("content-type")
                     val contentDisposition = response.headers().get("content-disposition")
 
@@ -58,17 +59,14 @@ class NetworkFileDownloader @Inject constructor(
                     if (contentDisposition != null) {
                         updatedPendingDownload = updatedPendingDownload.copy(contentDisposition = contentDisposition)
                     }
-
-                    when (val extractionResult = filenameExtractor.extract(updatedPendingDownload)) {
-                        is FilenameExtractor.FilenameExtractionResult.Extracted -> downloadFile(updatedPendingDownload, extractionResult.filename, callback)
-                        is FilenameExtractor.FilenameExtractionResult.Guess -> {
-                            downloadFile(updatedPendingDownload, extractionResult.bestGuess, callback)
-                        }
-                    }
                 } else {
                     // TODO [Improve downloads] This is not a connection failed error, but a non-[200..300) response code.
-                    Timber.d("Connection failed ${response.errorBody()}")
-                    callback.downloadFailed("Connection failed", DownloadFailReason.ConnectionRefused)
+                    Timber.d("HEAD request unsuccessful. Got a non-[200..300) response code for ${pendingDownload.url}. Error body: ${response.errorBody()}")
+                }
+
+                when (val extractionResult = filenameExtractor.extract(updatedPendingDownload)) {
+                   is FilenameExtractor.FilenameExtractionResult.Extracted -> downloadFile(updatedPendingDownload, extractionResult.filename, callback)
+                   is FilenameExtractor.FilenameExtractionResult.Guess ->  downloadFile(updatedPendingDownload, extractionResult.bestGuess, callback)
                 }
             }
 
